@@ -10,7 +10,7 @@ import datetime
 @app.route('/',methods=['GET'])
 @app.route('/index',methods=['GET'])
 def index():
-    return send_file('static/index.html')
+    return send_file('html/index.html')
 
 @app.route('/contracts', methods=['GET'])
 def get_contracts():
