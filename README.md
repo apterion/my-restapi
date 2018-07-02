@@ -3,6 +3,8 @@
 #
 # Init: ./db_create.py
 # Run: ./run.py
+# Migrate database: ./db_migrate.py
+# Downgrade database: ./db_downgrade.py
 #
 # Example usage:
 # Add contract:
