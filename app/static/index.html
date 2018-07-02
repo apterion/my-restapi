@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DevOps Rest API</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script type="text/javascript" src="https://yastatic.net/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h3>Договоры</h3>
+      <div style="position: absolute; width: 50%; left: 0px;">
+      <table border="1" width="100%">
+	<tr>
+	  <td>ID</td>
+	  <td>Дата заключения</td>
+	  <td>Текст</td>
+	</tr>
+	<tr v-for="contract in contracts">
+	  <td>{{contract.id}}</td>
+	  <td><input type="text" v-model="contract.signed_date" style="width: 100%;"></td>
+	  <td><input type="text" v-model="contract.text" style="width: 60%;"/>
+	    <button @click="update(contract.id,contract.signed_date, contract.text)" style="width: 38%;">
+	      Сохранить изменения
+	    </button>
+	  </td>
+	<tr>
+      </table>
+      </div>
+      <div style="position: absolute; width: 40%; right: 10px;">
+	<input type="text" v-model="new_contract.signed_date" placeholder="YYYY-MM-DD"/>
+	<input type="text" v-model="new_contract.text" placeholder="Текст договора"/>
+	<button @click="store(new_contract.signed_date, new_contract.text)">Добавить</button><br/>
+	<p v-show="!!message">{{message}}</p>
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      var app = new Vue({
+          el: '#app',
+          data() {
+              return {
+                  contracts: [],
+                  new_contract: {
+                      signed_date: null,
+                      text: null
+                  },
+                  message: null
+              }
+          },
+          methods: {
+              get_contracts() {
+                  axios.get('/contracts')
+                  .then(function(response) {
+                      contracts = response.data.contracts;
+                      for (let i in contracts) {
+                          date = new Date(contracts[i].signed_date);
+                          contracts[i].signed_date = date.getFullYear()+
+                          '-'+(+date.getMonth()+1)+
+                          '-'+date.getDate();
+                      } 
+                      this._data.contracts = contracts;
+                  }.bind(this))
+              },
+              store(signed_date, text) {
+                  axios.post('/contracts', {
+                      signed_date,
+                      text
+                  })
+                  .then(response => {
+                      this.get_contracts();
+                      this.message = 'Договор '+response.data+' записан в базу данных';
+                  })
+              },
+              update(contract_id, signed_date, text) {
+                  axios.put('/contracts/'+contract_id, {
+                      signed_date,
+                      text
+                  })
+                  .then(response => {
+                      this.message = 'Договор '+response.data+' обновлен';
+                  })
+              }
+          },
+          created() {
+              this.get_contracts();
+          }
+      });
+    </script>
+  </body>
+</html>
